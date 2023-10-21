@@ -1,0 +1,10 @@
+Header header
+sensor_msgs/Imu IMU
+sensor_msgs/MagneticField MagField
+string raw_data
+float64 roll
+float64 pitch
+float64 yaw
+geometry_msgs/Vector3 acceleration
+geometry_msgs/Vector3 angular_velocity
+geometry_msgs/Vector3 magnetic_field
