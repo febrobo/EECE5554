@@ -4,16 +4,21 @@ import rospy
 import serial
 from gps_driver.msg import gps_msg
 from std_msgs.msg import Time
+from std_msgs.msg import Header
 import pynmea2
 import io
 import utm
+import sys
 
 def talker():
-    rospy.init_node('gps_publisher')  # Initialize ROS node
-    pub = rospy.Publisher('gps_data', gps_msg, queue_size=10)
+    rospy.init_node('gps_publisher', anonymous=True)
+    portname = sys.argv[1] 
+    serial_port = rospy.get_param("~port",portname) # Initialize ROS node
+    pub = rospy.Publisher('gps', gps_msg, queue_size=10)
+    
     rate = rospy.Rate(1)  # 1 Hz publishing rate
 
-    with serial.Serial('/dev/ttyUSB0', 4800, timeout=5.0) as se:
+    with serial.Serial(serial_port, 4800, timeout=5.0) as se:
         while not rospy.is_shutdown():
             receive = se.readline().decode()
             if "$GPGGA" in receive:
@@ -46,6 +51,10 @@ def talker():
 
                         # Create a GPS message
                         gps_msg_data = gps_msg()
+                        
+                        gps_msg_data.header = Header()
+                        gps_msg_data.header.stamp = rospy.Time.now()
+                        gps_msg_data.header.frame_id = 'GPS1_FRAME'
                         gps_msg_data.latitude = lat_decimal
                         gps_msg_data.longitude = long_decimal
                         gps_msg_data.utm_easting = x
